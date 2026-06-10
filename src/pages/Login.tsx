@@ -2,10 +2,14 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { Wrench } from 'lucide-react'
 
+const GUEST_EMAIL = 'guest@garageapp.lb'
+const GUEST_PASS = 'guest123456'
+
 export default function Login() {
   const [phone, setPhone] = useState('')
   const [pass, setPass] = useState('')
   const [loading, setLoading] = useState(false)
+  const [guestLoading, setGuestLoading] = useState(false)
   const [error, setError] = useState('')
 
   const submit = async () => {
@@ -24,6 +28,17 @@ export default function Login() {
     setLoading(false)
   }
 
+  const guestLogin = async () => {
+    setGuestLoading(true); setError('')
+    // Try login first, if no account create it
+    const { error: e } = await supabase.auth.signInWithPassword({ email: GUEST_EMAIL, password: GUEST_PASS })
+    if (e) {
+      const { error: e2 } = await supabase.auth.signUp({ email: GUEST_EMAIL, password: GUEST_PASS })
+      if (e2) setError(e2.message)
+    }
+    setGuestLoading(false)
+  }
+
   return (
     <div className="min-h-screen bg-g-bg flex items-center justify-center p-6">
       <div className="w-full max-w-sm space-y-6 animate-fade-up">
@@ -34,11 +49,24 @@ export default function Login() {
           <h1 className="text-3xl font-black text-g-red">GarageApp</h1>
           <p className="text-g-dim text-sm mt-1">إدارة الكراج</p>
         </div>
+
+        {/* Guest button — big, obvious, first thing they see */}
+        <button onClick={guestLogin} disabled={guestLoading}
+          className="btn-red text-lg w-full py-4">
+          {guestLoading ? 'جاري الدخول...' : 'دخول كضيف 🔧'}
+        </button>
+
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-g-border" />
+          <span className="text-g-dim text-xs">أو سجّل حسابك</span>
+          <div className="flex-1 h-px bg-g-border" />
+        </div>
+
         <div className="card space-y-4">
-          <div><label className="label-g">رقم الهاتف</label><input value={phone} onChange={e => setPhone(e.target.value)} className="input-g text-left" type="tel" inputMode="tel" placeholder="03 123 456" dir="ltr" autoFocus /></div>
+          <div><label className="label-g">رقم الهاتف</label><input value={phone} onChange={e => setPhone(e.target.value)} className="input-g text-left" type="tel" inputMode="tel" placeholder="03 123 456" dir="ltr" /></div>
           <div><label className="label-g">كلمة المرور</label><input value={pass} onChange={e => setPass(e.target.value)} className="input-g" type="password" placeholder="••••••" dir="ltr" onKeyDown={e => e.key === 'Enter' && submit()} /><p className="text-g-dim text-[10px] mt-1.5">أول مرة؟ سجّل رقمك مع كلمة مرور جديدة</p></div>
           {error && <p className="text-g-red text-sm font-bold animate-fade-in">{error}</p>}
-          <button onClick={submit} disabled={loading || !phone || !pass} className="btn-red">{loading ? 'جاري...' : 'دخول 🔧'}</button>
+          <button onClick={submit} disabled={loading || !phone || !pass} className="w-full py-3 rounded-xl font-bold text-sm bg-g-elevated border border-g-border text-g-dim transition-all active:scale-[0.97]">{loading ? 'جاري...' : 'دخول'}</button>
         </div>
       </div>
     </div>
