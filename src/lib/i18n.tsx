@@ -2,7 +2,6 @@ import { createContext, useContext, useState, ReactNode } from 'react'
 
 const ar: Record<string, string> = {
   appName: 'GarageApp',
-  loading: 'جاري التحميل...',
   currentJobs: '🔴 شغل حالي',
   completed: '✅ مكتمل',
   newCar: 'سيارة جديدة',
@@ -18,20 +17,15 @@ const ar: Record<string, string> = {
   carModel: 'نوع السيارة',
   whatWork: 'شو الشغل؟',
   whatWorkHint: 'تغيير زيت + فلتر + فحص فرامل...',
-  partsCost: 'كلفة القطع ($)',
-  laborCost: 'أجرة الشغل ($)',
+  price: 'السعر ($)',
   total: 'الإجمالي',
   registerCar: '+ سجّل السيارة',
   name: 'الاسم',
   phone: 'رقم الهاتف',
   add: '+ إضافة',
   cancel: 'إلغاء',
-  back: 'رجوع',
-  open: 'شغل حالي',
   workDetails: 'تفاصيل الشغل',
   noDesc: 'بدون وصف',
-  parts: 'القطع',
-  labor: 'الأجرة',
   markDone: 'تم الشغل ✓',
   notifyClient: 'بلّغ الزبون',
   clientHistory: 'سجل الزبون',
@@ -43,13 +37,11 @@ const ar: Record<string, string> = {
   notFound: 'غير موجود',
   pickCustomer: 'اختر الزبون',
   enterPlate: 'أدخل رقم اللوحة',
-  apt: 'شقة',
   lang: 'EN',
 }
 
 const en: Record<string, string> = {
   appName: 'GarageApp',
-  loading: 'Loading...',
   currentJobs: '🔴 Active Jobs',
   completed: '✅ Completed',
   newCar: 'New Car',
@@ -65,20 +57,15 @@ const en: Record<string, string> = {
   carModel: 'Car Model',
   whatWork: 'Work Description',
   whatWorkHint: 'Oil change + filter + brake check...',
-  partsCost: 'Parts Cost ($)',
-  laborCost: 'Labor Cost ($)',
+  price: 'Price ($)',
   total: 'Total',
   registerCar: '+ Register Car',
   name: 'Name',
   phone: 'Phone Number',
   add: '+ Add',
   cancel: 'Cancel',
-  back: 'Back',
-  open: 'Active',
   workDetails: 'Work Details',
   noDesc: 'No description',
-  parts: 'Parts',
-  labor: 'Labor',
   markDone: 'Mark Done ✓',
   notifyClient: 'Notify Client',
   clientHistory: 'Client History',
@@ -90,7 +77,6 @@ const en: Record<string, string> = {
   notFound: 'Not found',
   pickCustomer: 'Pick a customer',
   enterPlate: 'Enter plate number',
-  apt: 'apt',
   lang: 'ع',
 }
 
@@ -101,11 +87,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>('ar')
   const toggle = () => setLang(l => l === 'ar' ? 'en' : 'ar')
   const t = lang === 'ar' ? ar : en
-  return (
-    <LangCtx.Provider value={{ t, lang, toggle }}>
-      <div dir={lang === 'ar' ? 'rtl' : 'ltr'}>{children}</div>
-    </LangCtx.Provider>
-  )
+  return <LangCtx.Provider value={{ t, lang, toggle }}><div dir={lang === 'ar' ? 'rtl' : 'ltr'}>{children}</div></LangCtx.Provider>
 }
 
 export function useLang() { return useContext(LangCtx) }

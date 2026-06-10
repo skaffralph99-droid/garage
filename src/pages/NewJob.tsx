@@ -12,8 +12,7 @@ export default function NewJob() {
   const [plate, setPlate] = useState('')
   const [carModel, setCarModel] = useState('')
   const [desc, setDesc] = useState('')
-  const [parts, setParts] = useState('')
-  const [labor, setLabor] = useState('')
+  const [price, setPrice] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [showNew, setShowNew] = useState(false)
@@ -28,7 +27,7 @@ export default function NewJob() {
     setSavingC(true)
     const uid = (await supabase.auth.getUser()).data.user?.id
     const { data } = await supabase.from('garage_clients').insert({ name: newName.trim(), phone: newPhone.trim() || null, owner_id: uid }).select('id').single()
-    if (data) { setClientId(data.id); setClients(p => [...p, { id: data.id, name: newName.trim(), phone: newPhone.trim() || null }]) }
+    if (data) { setClientId(data.id); setClients(p => [...p, { id: data.id, name: newName.trim() }]) }
     setSavingC(false); setShowNew(false); setNewName(''); setNewPhone('')
   }
 
@@ -37,12 +36,12 @@ export default function NewJob() {
     if (!plate.trim()) { setError(t.enterPlate); return }
     setError(''); setSaving(true)
     const uid = (await supabase.auth.getUser()).data.user?.id
-    await supabase.from('garage_jobs').insert({ owner_id: uid, client_id: clientId, plate_number: plate.trim(), car_model: carModel.trim() || null, description: desc.trim() || null, parts_cost: parseFloat(parts) || 0, labor_cost: parseFloat(labor) || 0 })
+    await supabase.from('garage_jobs').insert({ owner_id: uid, client_id: clientId, plate_number: plate.trim(), car_model: carModel.trim() || null, description: desc.trim() || null, total: parseFloat(price) || 0 })
     setSaving(false); nav('/')
   }
 
-  const total = (parseFloat(parts) || 0) + (parseFloat(labor) || 0)
   const sel = clients.find(c => c.id === clientId)
+  const total = parseFloat(price) || 0
 
   return (
     <div className="p-4 space-y-4 animate-fade-up">
@@ -71,14 +70,13 @@ export default function NewJob() {
         <textarea value={desc} onChange={e => setDesc(e.target.value)} className="input-g h-20 resize-none" placeholder={t.whatWorkHint} />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 animate-fade-up delay-4">
-        <div><label className="label-g">{t.partsCost}</label><input value={parts} onChange={e => setParts(e.target.value)} className="input-g text-center text-lg font-bold" type="number" inputMode="decimal" placeholder="0" /></div>
-        <div><label className="label-g">{t.laborCost}</label><input value={labor} onChange={e => setLabor(e.target.value)} className="input-g text-center text-lg font-bold" type="number" inputMode="decimal" placeholder="0" /></div>
+      <div className="animate-fade-up delay-4">
+        <label className="label-g">{t.price}</label>
+        <input value={price} onChange={e => setPrice(e.target.value)} className="input-g text-center text-3xl font-black h-16" type="number" inputMode="decimal" placeholder="0" />
       </div>
 
       {total > 0 && (
         <div className="bg-g-red/10 border border-g-red/20 rounded-xl p-4 text-center animate-scale-in">
-          <p className="text-g-dim text-xs">{t.total}</p>
           <p className="text-g-red text-3xl font-black">${total.toLocaleString()}</p>
           {sel && <p className="text-g-dim text-xs mt-1">{sel.name} · {plate}</p>}
         </div>
