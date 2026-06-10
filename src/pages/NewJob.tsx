@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 import { useLang } from '../lib/i18n'
 import { ArrowRight, UserPlus } from 'lucide-react'
 
+function money(n: any) { return '$' + Math.round(Number(n) || 0).toLocaleString('en-US') }
+
 export default function NewJob() {
   const { t } = useLang()
   const nav = useNavigate()
