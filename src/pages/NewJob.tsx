@@ -12,7 +12,8 @@ export default function NewJob() {
   const [plate, setPlate] = useState('')
   const [carModel, setCarModel] = useState('')
   const [desc, setDesc] = useState('')
-  const [price, setPrice] = useState('')
+  const [partsCost, setPartsCost] = useState('')
+  const [charged, setCharged] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [showNew, setShowNew] = useState(false)
@@ -36,12 +37,13 @@ export default function NewJob() {
     if (!plate.trim()) { setError(t.enterPlate); return }
     setError(''); setSaving(true)
     const uid = (await supabase.auth.getUser()).data.user?.id
-    await supabase.from('garage_jobs').insert({ owner_id: uid, client_id: clientId, plate_number: plate.trim(), car_model: carModel.trim() || null, description: desc.trim() || null, total: parseFloat(price) || 0 })
+    await supabase.from('garage_jobs').insert({ owner_id: uid, client_id: clientId, plate_number: plate.trim(), car_model: carModel.trim() || null, description: desc.trim() || null, parts_cost: parseFloat(partsCost) || 0, total: parseFloat(charged) || 0 })
     setSaving(false); nav('/')
   }
 
-  const sel = clients.find(c => c.id === clientId)
-  const total = parseFloat(price) || 0
+  const cost = parseFloat(partsCost) || 0
+  const price = parseFloat(charged) || 0
+  const profit = price - cost
 
   return (
     <div className="p-4 space-y-4 animate-fade-up">
@@ -70,15 +72,23 @@ export default function NewJob() {
         <textarea value={desc} onChange={e => setDesc(e.target.value)} className="input-g h-20 resize-none" placeholder={t.whatWorkHint} />
       </div>
 
-      <div className="animate-fade-up delay-4">
-        <label className="label-g">{t.price}</label>
-        <input value={price} onChange={e => setPrice(e.target.value)} className="input-g text-center text-3xl font-black h-16" type="number" inputMode="decimal" placeholder="0" />
+      {/* Two price fields side by side */}
+      <div className="grid grid-cols-2 gap-3 animate-fade-up delay-4">
+        <div>
+          <label className="label-g">🔴 {t.partsCost} ($)</label>
+          <input value={partsCost} onChange={e => setPartsCost(e.target.value)} className="input-g text-center text-2xl font-black" type="number" inputMode="decimal" placeholder="0" />
+        </div>
+        <div>
+          <label className="label-g">🟢 {t.chargedPrice} ($)</label>
+          <input value={charged} onChange={e => setCharged(e.target.value)} className="input-g text-center text-2xl font-black" type="number" inputMode="decimal" placeholder="0" />
+        </div>
       </div>
 
-      {total > 0 && (
-        <div className="bg-g-red/10 border border-g-red/20 rounded-xl p-4 text-center animate-scale-in">
-          <p className="text-g-red text-3xl font-black">${total.toLocaleString()}</p>
-          {sel && <p className="text-g-dim text-xs mt-1">{sel.name} · {plate}</p>}
+      {/* Profit preview */}
+      {price > 0 && (
+        <div className={`rounded-xl p-4 text-center animate-scale-in ${profit >= 0 ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
+          <p className="text-g-dim text-xs">{t.profit}</p>
+          <p className={`text-3xl font-black ${profit >= 0 ? 'text-green-400' : 'text-g-red'}`}>{profit >= 0 ? '+' : ''}{money(profit)}</p>
         </div>
       )}
 
