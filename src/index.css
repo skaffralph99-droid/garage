@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Tajawal', sans-serif; background: #0A0A0A; color: #E8E4E0; }
+  input, select, textarea, button { font-family: 'Tajawal', sans-serif; }
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+}
+@layer components {
+  .card { @apply bg-g-card border border-g-border/60 rounded-2xl p-4; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+  .input-g { @apply w-full bg-g-elevated border border-g-border rounded-xl px-4 py-3 text-g-steel text-sm transition-all; }
+  .input-g:focus { @apply border-g-red outline-none; box-shadow: 0 0 0 3px rgba(239,68,68,0.12); }
+  .input-g::placeholder { @apply text-g-dim/50; }
+  .label-g { @apply block text-g-dim text-xs font-bold mb-2; }
+  .btn-red { @apply w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.97]; background: linear-gradient(135deg, #DC2626, #EF4444); color: #fff; }
+  .btn-red:disabled { opacity: 0.5; }
+}
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes scaleIn { from{opacity:0;transform:scale(0.94)} to{opacity:1;transform:scale(1)} }
+.animate-fade-up { animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-in { animation: fadeIn 0.4s ease-out both; }
+.animate-scale-in { animation: scaleIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+.spinner { animation: spin 0.7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.delay-1{animation-delay:.05s}.delay-2{animation-delay:.1s}.delay-3{animation-delay:.15s}.delay-4{animation-delay:.2s}.delay-5{animation-delay:.25s}.delay-6{animation-delay:.3s}
+
+::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:#2A2A2A;border-radius:4px}
