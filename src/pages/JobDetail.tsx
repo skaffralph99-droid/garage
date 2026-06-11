@@ -135,9 +135,14 @@ export default function JobDetail() {
               const hp = Number(h.total) - Number(h.parts_cost)
               return (
                 <div key={h.id} className="card py-3 flex items-center gap-3 opacity-50 hover:opacity-80 transition-opacity">
+                  <div className="flex flex-col items-center shrink-0 min-w-[44px]">
+                    <p className="money text-g-steel text-[11px]">{format(new Date(h.date_in), 'dd/MM')}</p>
+                    <p className="text-g-dim/30 text-[9px]">{format(new Date(h.date_in), 'yyyy')}</p>
+                  </div>
+                  <div className="w-0.5 self-stretch rounded-full bg-white/[0.06] shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="plate text-g-steel text-sm font-bold">{h.plate_number} · <span className="text-g-dim/40 font-normal">{h.car_model || '—'}</span></p>
-                    <p className="text-g-dim/30 text-[10px]">{h.description || '—'} · {format(new Date(h.date_in), 'dd/MM/yyyy')}</p>
+                    <p className="plate text-g-steel text-sm font-bold">{h.plate_number}</p>
+                    <p className="text-g-dim/30 text-[10px] truncate">{h.description || '—'}</p>
                   </div>
                   <div className="text-left shrink-0">
                     <p className="money text-g-steel text-sm">{$(h.total)}</p>

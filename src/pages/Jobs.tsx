@@ -48,15 +48,18 @@ export default function Jobs() {
     const profit = Number(j.total) - Number(j.parts_cost)
     const isOpen = j.status === 'open'
     return (
-      <Link to={`/job/${j.id}`} className={`card flex items-center gap-3 animate-slide-in delay-${Math.min(i + 2, 7)} ${ghost ? 'opacity-60 hover:opacity-100' : 'hover:-translate-y-0.5'} ${isOpen ? '' : ''}`} style={isOpen ? { borderColor: 'rgba(229,57,53,0.15)' } : {}}>
+      <Link to={`/job/${j.id}`} className={`card flex items-center gap-3 animate-slide-in delay-${Math.min(i + 2, 7)} ${ghost ? 'opacity-60 hover:opacity-100' : 'hover:-translate-y-0.5'}`} style={isOpen ? { borderColor: 'rgba(229,57,53,0.15)' } : {}}>
         <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${isOpen ? 'bg-g-red/10' : 'bg-g-green/10'}`}>
           <Car size={18} className={isOpen ? 'text-g-red' : 'text-g-green'} />
         </div>
         <div className={`w-0.5 self-stretch rounded-full shrink-0 ${isOpen ? 'bg-g-red/60' : 'bg-g-green/40'}`} />
         <div className="flex-1 min-w-0">
-          <p className="text-g-steel font-bold text-sm truncate">{j.garage_clients?.name}</p>
-          <p className="plate text-g-dim text-[11px]">{j.plate_number}</p>
-          <p className="text-g-dim/40 text-[10px] truncate">{j.car_model}{j.description ? ' · ' + j.description : ''}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-g-steel font-bold text-sm truncate">{j.garage_clients?.name}</p>
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.05] text-g-dim/60 shrink-0">{format(new Date(j.date_in), 'dd/MM/yy')}</span>
+          </div>
+          <p className="plate text-g-dim text-[11px]">{j.plate_number} <span className="text-g-dim/30">·</span> <span className="text-g-dim/40">{j.car_model || ''}</span></p>
+          <p className="text-g-dim/30 text-[10px] truncate">{j.description || ''}</p>
         </div>
         <div className="text-left shrink-0">
           <p className="money text-g-steel text-sm">{$(j.total)}</p>
