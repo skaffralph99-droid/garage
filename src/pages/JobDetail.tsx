@@ -129,7 +129,7 @@ export default function JobDetail() {
 
       {history.length > 0 && (
         <div className="animate-fade-up delay-4">
-          <p className="section-label">📋 {t.clientHistory} ({history.length})</p>
+          <p className="text-[11px] font-bold tracking-[0.15em] uppercase mb-3 text-g-steel/60">📋 {t.clientHistory} ({history.length})</p>
           <div className="space-y-2">
             {history.map(h => {
               const hp = Number(h.total) - Number(h.parts_cost)

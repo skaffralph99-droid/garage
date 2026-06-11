@@ -52,8 +52,8 @@
   }
 
   .section-label {
-    @apply text-[10px] font-bold tracking-[0.2em] uppercase mb-3;
-    color: rgba(255,255,255,0.25);
+    @apply text-[11px] font-bold tracking-[0.15em] uppercase mb-3;
+    color: rgba(255,255,255,0.5);
   }
 
   .glass-stat {

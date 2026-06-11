@@ -159,7 +159,7 @@ export default function Jobs() {
             <div className="animate-fade-up delay-4">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-1.5 h-1.5 rounded-full bg-g-red animate-pulse" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
-                <p className="section-label mb-0">{t.currentJobs} ({open.length})</p>
+                <p className="text-[11px] font-bold tracking-[0.15em] uppercase mb-0 text-g-red/80">{t.currentJobs} ({open.length})</p>
               </div>
               <div className="space-y-2.5">
                 {open.map((j, i) => <JobCard key={j.id} j={j} i={i} />)}
@@ -170,7 +170,7 @@ export default function Jobs() {
           {/* Completed */}
           {completed.length > 0 && (
             <div className="animate-fade-up delay-5">
-              <p className="section-label">{t.completed} ({completed.length})</p>
+              <p className="text-[11px] font-bold tracking-[0.15em] uppercase mb-3 text-g-green/70">{t.completed} ({completed.length})</p>
               <div className="space-y-2.5">
                 {completed.map((j, i) => <JobCard key={j.id} j={j} i={i} ghost />)}
               </div>
