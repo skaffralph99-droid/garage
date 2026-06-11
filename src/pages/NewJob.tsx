@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useLang } from '../lib/i18n'
-import { ArrowRight, UserPlus } from 'lucide-react'
+import { ArrowRight, UserPlus, TrendingUp, TrendingDown } from 'lucide-react'
 
-function money(n: any) { return '$' + Math.round(Number(n) || 0).toLocaleString('en-US') }
+const $ = (n: any) => '$' + Math.round(Number(n) || 0).toLocaleString('en-US')
 
 export default function NewJob() {
   const { t } = useLang()
@@ -48,25 +48,31 @@ export default function NewJob() {
   const profit = price - cost
 
   return (
-    <div className="p-4 space-y-4 animate-fade-up">
+    <div className="p-4 space-y-5 animate-fade-up pb-8">
       <div className="flex items-center gap-3">
-        <button onClick={() => nav('/')} className="w-9 h-9 rounded-xl bg-g-elevated flex items-center justify-center"><ArrowRight size={18} className="text-g-red" /></button>
-        <h1 className="text-g-steel text-xl font-black">🚗 {t.newCar}</h1>
+        <button onClick={() => nav('/')} className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center"><ArrowRight size={16} className="text-g-red" /></button>
+        <h1 className="text-g-steel text-lg font-black">🚗 {t.newCar}</h1>
       </div>
 
       <div className="animate-fade-up delay-1">
-        <label className="label-g">{t.customer} *</label>
+        <label className="label-g">{t.customer}</label>
         <div className="flex gap-2 flex-wrap">
           {clients.map(c => (
-            <button key={c.id} onClick={() => setClientId(c.id)} className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all active:scale-95 ${clientId === c.id ? 'bg-g-red border-g-red text-white' : 'bg-g-card border-g-border text-g-dim'}`}>{c.name}</button>
+            <button key={c.id} onClick={() => setClientId(c.id)}
+              className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 ${clientId === c.id ? 'text-white' : 'bg-white/[0.03] border border-white/[0.06] text-g-dim hover:text-g-steel'}`}
+              style={clientId === c.id ? { background: 'linear-gradient(135deg, #C62828, #E53935)', boxShadow: '0 4px 12px rgba(229,57,53,0.25)' } : {}}>
+              {c.name}
+            </button>
           ))}
-          <button onClick={() => setShowNew(true)} className="px-4 py-2.5 rounded-xl text-sm font-bold border border-dashed border-g-border text-g-dim flex items-center gap-1 hover:border-g-red hover:text-g-red transition-all"><UserPlus size={14} /> {t.newCustomer}</button>
+          <button onClick={() => setShowNew(true)} className="px-4 py-2.5 rounded-xl text-sm font-bold border border-dashed border-white/10 text-g-dim flex items-center gap-1.5 hover:border-g-red/40 hover:text-g-red transition-all">
+            <UserPlus size={13} /> {t.newCustomer}
+          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 animate-fade-up delay-2">
-        <div><label className="label-g">{t.plate} *</label><input value={plate} onChange={e => setPlate(e.target.value)} className="input-g text-center font-bold text-lg" placeholder="B 123456" dir="ltr" /></div>
-        <div><label className="label-g">{t.carModel}</label><input value={carModel} onChange={e => setCarModel(e.target.value)} className="input-g" placeholder="BMW 320i" dir="ltr" /></div>
+        <div><label className="label-g">{t.plate}</label><input value={plate} onChange={e => setPlate(e.target.value)} className="input-g text-center plate text-lg" placeholder="B 123456" dir="ltr" /></div>
+        <div><label className="label-g">{t.carModel}</label><input value={carModel} onChange={e => setCarModel(e.target.value)} className="input-g text-sm" placeholder="BMW 320i" dir="ltr" /></div>
       </div>
 
       <div className="animate-fade-up delay-3">
@@ -74,23 +80,24 @@ export default function NewJob() {
         <textarea value={desc} onChange={e => setDesc(e.target.value)} className="input-g h-20 resize-none" placeholder={t.whatWorkHint} />
       </div>
 
-      {/* Two price fields side by side */}
       <div className="grid grid-cols-2 gap-3 animate-fade-up delay-4">
         <div>
-          <label className="label-g">🔴 {t.partsCost} ($)</label>
-          <input value={partsCost} onChange={e => setPartsCost(e.target.value)} className="input-g text-center text-2xl font-black" type="number" inputMode="decimal" placeholder="0" />
+          <label className="label-g text-g-red/60">{t.partsCost} ($)</label>
+          <input value={partsCost} onChange={e => setPartsCost(e.target.value)} className="input-g text-center money text-2xl" type="number" inputMode="decimal" placeholder="0" />
         </div>
         <div>
-          <label className="label-g">🟢 {t.chargedPrice} ($)</label>
-          <input value={charged} onChange={e => setCharged(e.target.value)} className="input-g text-center text-2xl font-black" type="number" inputMode="decimal" placeholder="0" />
+          <label className="label-g text-g-green/60">{t.chargedPrice} ($)</label>
+          <input value={charged} onChange={e => setCharged(e.target.value)} className="input-g text-center money text-2xl" type="number" inputMode="decimal" placeholder="0" />
         </div>
       </div>
 
-      {/* Profit preview */}
       {price > 0 && (
-        <div className={`rounded-xl p-4 text-center animate-scale-in ${profit >= 0 ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
-          <p className="text-g-dim text-xs">{t.profit}</p>
-          <p className={`text-3xl font-black ${profit >= 0 ? 'text-green-400' : 'text-g-red'}`}>{profit >= 0 ? '+' : ''}{money(profit)}</p>
+        <div className="card animate-scale-in" style={profit >= 0 ? { background: 'linear-gradient(165deg, rgba(74,222,128,0.06), rgba(0,0,0,0))' , borderColor: 'rgba(74,222,128,0.15)' } : { borderColor: 'rgba(229,57,53,0.15)' }}>
+          <div className="flex items-center justify-center gap-2">
+            {profit >= 0 ? <TrendingUp size={18} className="text-g-green" /> : <TrendingDown size={18} className="text-g-red" />}
+            <span className={`money text-3xl font-black ${profit >= 0 ? 'text-g-green' : 'text-g-red'}`}>{profit >= 0 ? '+' : ''}{$(profit)}</span>
+          </div>
+          <p className="text-center text-g-dim/40 text-[10px] mt-1">{t.profit}</p>
         </div>
       )}
 
@@ -98,10 +105,10 @@ export default function NewJob() {
       <button onClick={submit} disabled={saving} className="btn-red text-base animate-fade-up delay-5">{saving ? '...' : t.registerCar}</button>
 
       {showNew && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center animate-fade-in" onClick={() => setShowNew(false)}>
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center animate-fade-in" onClick={() => setShowNew(false)}>
           <div className="card w-full max-w-sm space-y-4 animate-scale-in rounded-b-none sm:rounded-b-2xl" onClick={e => e.stopPropagation()}>
             <h2 className="text-g-steel font-black text-lg">👤 {t.newCustomer}</h2>
-            <div><label className="label-g">{t.name} *</label><input value={newName} onChange={e => setNewName(e.target.value)} className="input-g text-lg" autoFocus /></div>
+            <div><label className="label-g">{t.name}</label><input value={newName} onChange={e => setNewName(e.target.value)} className="input-g text-lg" autoFocus /></div>
             <div><label className="label-g">{t.phone}</label><input value={newPhone} onChange={e => setNewPhone(e.target.value)} className="input-g" type="tel" inputMode="tel" dir="ltr" /></div>
             <button onClick={addClient} disabled={savingC || !newName.trim()} className="btn-red">{savingC ? '...' : t.add}</button>
             <button onClick={() => setShowNew(false)} className="w-full py-2 text-g-dim text-sm font-bold">{t.cancel}</button>

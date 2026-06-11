@@ -2,17 +2,17 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useLang } from '../lib/i18n'
-import { Plus, ChevronLeft, Wrench, LogOut, Car, Search, X } from 'lucide-react'
+import { Plus, ChevronLeft, Wrench, LogOut, Car, Search, X, TrendingUp } from 'lucide-react'
 import { format } from 'date-fns'
 
-function money(n: any) { return '$' + Math.round(Number(n) || 0).toLocaleString('en-US') }
+const $ = (n: any) => '$' + Math.round(Number(n) || 0).toLocaleString('en-US')
 
 export default function Jobs() {
   const { t, toggle } = useLang()
   const [jobs, setJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [searchResults, setSearchResults] = useState<any[] | null>(null)
+  const [results, setResults] = useState<any[] | null>(null)
 
   useEffect(() => {
     supabase.rpc('garage_claim').then(() => {
@@ -22,180 +22,166 @@ export default function Jobs() {
     })
   }, [])
 
-  // Live search by plate number
   useEffect(() => {
-    if (!search.trim()) { setSearchResults(null); return }
-    const q = search.trim()
-    const results = jobs.filter(j =>
-      j.plate_number.toLowerCase().includes(q.toLowerCase()) ||
-      j.garage_clients?.name?.toLowerCase().includes(q.toLowerCase()) ||
-      j.car_model?.toLowerCase().includes(q.toLowerCase())
-    )
-    setSearchResults(results)
+    if (!search.trim()) { setResults(null); return }
+    const q = search.trim().toLowerCase()
+    setResults(jobs.filter(j => j.plate_number?.toLowerCase().includes(q) || j.garage_clients?.name?.toLowerCase().includes(q) || j.car_model?.toLowerCase().includes(q)))
   }, [search, jobs])
 
-  if (loading) return <div className="flex items-center justify-center h-[80vh]"><p className="text-2xl">🔧</p></div>
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: 'linear-gradient(135deg, #C62828, #E53935)' }}>
+        <Wrench size={30} className="text-white" />
+      </div>
+      <p className="text-g-red font-black text-lg tracking-wider">GarageApp</p>
+    </div>
+  )
 
   const open = jobs.filter(j => j.status === 'open')
   const completed = jobs.filter(j => j.status === 'completed')
-  const totalRevenue = completed.reduce((s, j) => s + Number(j.total), 0)
-  const totalCosts = completed.reduce((s, j) => s + Number(j.parts_cost), 0)
-  const totalProfit = totalRevenue - totalCosts
+  const totalRev = completed.reduce((s, j) => s + Number(j.total), 0)
+  const totalCost = completed.reduce((s, j) => s + Number(j.parts_cost), 0)
+  const totalProfit = totalRev - totalCost
+  const isSearching = results !== null
 
-  const isSearching = searchResults !== null
+  const JobCard = ({ j, i, ghost }: { j: any; i: number; ghost?: boolean }) => {
+    const profit = Number(j.total) - Number(j.parts_cost)
+    const isOpen = j.status === 'open'
+    return (
+      <Link to={`/job/${j.id}`} className={`card flex items-center gap-3 animate-slide-in delay-${Math.min(i + 2, 7)} ${ghost ? 'opacity-60 hover:opacity-100' : 'hover:-translate-y-0.5'} ${isOpen ? '' : ''}`} style={isOpen ? { borderColor: 'rgba(229,57,53,0.15)' } : {}}>
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${isOpen ? 'bg-g-red/10' : 'bg-g-green/10'}`}>
+          <Car size={18} className={isOpen ? 'text-g-red' : 'text-g-green'} />
+        </div>
+        <div className={`w-0.5 self-stretch rounded-full shrink-0 ${isOpen ? 'bg-g-red/60' : 'bg-g-green/40'}`} />
+        <div className="flex-1 min-w-0">
+          <p className="text-g-steel font-bold text-sm truncate">{j.garage_clients?.name}</p>
+          <p className="plate text-g-dim text-[11px]">{j.plate_number}</p>
+          <p className="text-g-dim/40 text-[10px] truncate">{j.car_model}{j.description ? ' · ' + j.description : ''}</p>
+        </div>
+        <div className="text-left shrink-0">
+          <p className="money text-g-steel text-sm">{$(j.total)}</p>
+          <p className={`money text-[10px] ${profit >= 0 ? 'text-g-green' : 'text-g-red'}`}>{profit >= 0 ? '+' : ''}{$(profit)}</p>
+        </div>
+        <ChevronLeft size={12} className="text-g-dim/30 shrink-0" />
+      </Link>
+    )
+  }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4 pb-8">
+      {/* Header */}
       <div className="flex items-center justify-between animate-fade-up">
-        <div className="flex items-center gap-2">
-          <Wrench size={20} className="text-g-red" />
-          <h1 className="text-g-steel text-2xl font-black">{t.appName}</h1>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #C62828, #E53935)' }}>
+            <Wrench size={16} className="text-white" />
+          </div>
+          <h1 className="text-g-steel text-xl font-black tracking-wide">GarageApp</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={toggle} className="w-9 h-9 rounded-full bg-g-card border border-g-border flex items-center justify-center text-g-dim hover:text-g-red transition-colors text-xs font-black">{t.lang}</button>
-          <button onClick={() => supabase.auth.signOut()} className="w-9 h-9 rounded-full bg-g-card border border-g-border flex items-center justify-center text-g-dim"><LogOut size={14} /></button>
+        <div className="flex items-center gap-1.5">
+          <button onClick={toggle} className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-g-dim text-[10px] font-black hover:text-g-red transition-colors">{t.lang}</button>
+          <button onClick={() => supabase.auth.signOut()} className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-g-dim hover:text-g-red transition-colors"><LogOut size={13} /></button>
         </div>
       </div>
 
-      {/* 🔍 PLATE SEARCH — the killer feature */}
-      <div className="relative animate-fade-up delay-1">
-        <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-g-dim pointer-events-none" />
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="input-g pr-10 pl-10 text-base font-bold"
-          placeholder={t.lang === 'ع' ? 'Search plate, name, or car...' : 'ابحث برقم اللوحة، الاسم، أو السيارة...'}
-          dir="ltr"
-        />
-        {search && (
-          <button onClick={() => setSearch('')} className="absolute left-3 top-1/2 -translate-y-1/2 text-g-dim hover:text-g-red">
-            <X size={16} />
-          </button>
-        )}
+      {/* Profit bar */}
+      <div className="animate-fade-up delay-1">
+        <div className="card p-0 overflow-hidden">
+          <div className="flex">
+            <div className="flex-1 p-3.5 text-center border-r border-white/[0.04]">
+              <p className="text-g-dim/50 text-[9px] font-bold tracking-wider uppercase">{t.revenue}</p>
+              <p className="money text-g-steel text-lg mt-1">{$(totalRev)}</p>
+            </div>
+            <div className="flex-1 p-3.5 text-center border-r border-white/[0.04]">
+              <p className="text-g-dim/50 text-[9px] font-bold tracking-wider uppercase">{t.costs}</p>
+              <p className="money text-g-red text-lg mt-1">{$(totalCost)}</p>
+            </div>
+            <div className="flex-1 p-3.5 text-center" style={{ background: 'rgba(74,222,128,0.04)' }}>
+              <p className="text-g-green/50 text-[9px] font-bold tracking-wider uppercase flex items-center justify-center gap-1"><TrendingUp size={10} />{t.profit}</p>
+              <p className="money text-g-green text-lg mt-1">{$(totalProfit)}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="relative animate-fade-up delay-2">
+        <div className={`relative transition-all duration-300 ${isSearching ? 'animate-glow rounded-xl' : ''}`}>
+          <Search size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            className="input-g pr-10 pl-10 font-bold plate"
+            placeholder={t.lang === 'ع' ? 'Search plate, name, car...' : 'بحث — لوحة، اسم، سيارة...'}
+            dir="ltr" />
+          {search && (
+            <button onClick={() => setSearch('')} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-g-red transition-colors"><X size={14} /></button>
+          )}
+        </div>
       </div>
 
       {/* Search results */}
       {isSearching && (
         <div className="animate-fade-in">
-          {searchResults.length === 0 ? (
-            <div className="card text-center py-8">
-              <p className="text-3xl mb-2">🔍</p>
-              <p className="text-g-dim text-sm">{t.lang === 'ع' ? 'No results for' : 'لا نتائج لـ'} "{search}"</p>
+          {results.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-2xl mb-2 opacity-30">🔍</p>
+              <p className="text-g-dim text-sm">No results for "<span className="plate">{search}</span>"</p>
             </div>
           ) : (
-            <div className="space-y-2">
-              <p className="text-g-dim text-[11px] font-bold tracking-widest">🔍 {searchResults.length} {t.lang === 'ع' ? 'results' : 'نتيجة'}</p>
-              {searchResults.map(j => {
-                const profit = Number(j.total) - Number(j.parts_cost)
-                const isOpen = j.status === 'open'
-                return (
-                  <Link key={j.id} to={`/job/${j.id}`} className={`card flex items-center gap-3 transition-all ${isOpen ? 'border-g-red/20' : ''}`}>
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${isOpen ? 'bg-g-red/15' : 'bg-green-500/10'}`}>
-                      <Car size={20} className={isOpen ? 'text-g-red' : 'text-green-400'} />
-                    </div>
-                    <div className={`w-1 self-stretch rounded-full shrink-0 ${isOpen ? 'bg-g-red' : 'bg-green-500'}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-g-steel font-bold text-sm truncate">{j.garage_clients?.name} — {j.plate_number}</p>
-                      <p className="text-g-dim text-[10px] truncate">{j.car_model} · {j.description}</p>
-                      <p className="text-g-dim text-[10px]">{format(new Date(j.date_in), 'dd/MM/yyyy')} · {isOpen ? (t.lang === 'ع' ? 'Active' : 'شغل حالي') : (t.lang === 'ع' ? 'Done' : 'مكتمل')}</p>
-                    </div>
-                    <div className="text-left shrink-0">
-                      <p className="text-g-steel font-black text-sm">{money(j.total)}</p>
-                      <p className="text-green-400 text-[10px] font-bold">+{money(profit)}</p>
-                    </div>
-                    <ChevronLeft size={14} className="text-g-dim shrink-0" />
-                  </Link>
-                )
-              })}
+            <div className="space-y-2.5">
+              <p className="section-label">🔍 {results.length} {t.lang === 'ع' ? 'results' : 'نتيجة'}</p>
+              {results.map((j, i) => <JobCard key={j.id} j={j} i={i} />)}
             </div>
           )}
         </div>
       )}
 
-      {/* Normal view — only show when NOT searching */}
+      {/* Normal view */}
       {!isSearching && (
         <>
-          <div className="flex gap-2 animate-fade-up delay-2">
-            <div className="flex-1 bg-g-card border border-g-border rounded-xl p-3 text-center">
-              <p className="text-g-steel font-black text-xl">{money(totalRevenue)}</p>
-              <p className="text-g-dim text-[10px]">{t.revenue}</p>
-            </div>
-            <div className="flex-1 bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-center">
-              <p className="text-g-red font-black text-xl">{money(totalCosts)}</p>
-              <p className="text-g-dim text-[10px]">{t.costs}</p>
-            </div>
-            <div className="flex-1 bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
-              <p className="text-green-400 font-black text-xl">{money(totalProfit)}</p>
-              <p className="text-g-dim text-[10px]">{t.profit} 💰</p>
-            </div>
-          </div>
-
+          {/* New car CTA */}
           <Link to="/new" className="block animate-fade-up delay-3">
-            <div className="relative overflow-hidden rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, #DC2626, #EF4444, #F87171)' }}>
+            <div className="relative overflow-hidden rounded-2xl p-4 transition-all hover:-translate-y-0.5" style={{ background: 'linear-gradient(135deg, #B71C1C 0%, #E53935 50%, #FF5252 100%)' }}>
               <div className="flex items-center gap-3 relative z-10">
-                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center"><Plus size={24} className="text-white" /></div>
-                <div><p className="text-white font-black text-base">{t.newCar}</p><p className="text-white/70 text-xs">{t.newCarSub}</p></div>
+                <div className="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
+                  <Plus size={22} className="text-white" />
+                </div>
+                <div>
+                  <p className="text-white font-black text-base">{t.newCar}</p>
+                  <p className="text-white/50 text-xs">{t.newCarSub}</p>
+                </div>
               </div>
-              <div className="absolute -left-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
+              <div className="absolute -left-6 -bottom-6 w-28 h-28 rounded-full bg-white/[0.06]" />
+              <div className="absolute right-8 -top-4 w-16 h-16 rounded-full bg-white/[0.04]" />
             </div>
           </Link>
 
+          {/* Active */}
           {open.length > 0 && (
             <div className="animate-fade-up delay-4">
-              <p className="text-g-red text-[11px] font-bold tracking-widest mb-3">{t.currentJobs}</p>
-              <div className="space-y-2">
-                {open.map((j, i) => {
-                  const profit = Number(j.total) - Number(j.parts_cost)
-                  return (
-                    <Link key={j.id} to={`/job/${j.id}`} className={`card flex items-center gap-3 border-g-red/20 hover:-translate-y-0.5 transition-all animate-fade-up delay-${Math.min(i + 4, 6)}`}>
-                      <div className="w-11 h-11 rounded-xl bg-g-red/15 flex items-center justify-center shrink-0"><Car size={20} className="text-g-red" /></div>
-                      <div className="w-1 self-stretch rounded-full bg-g-red shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-g-steel font-bold text-sm truncate">{j.garage_clients?.name} — {j.plate_number}</p>
-                        <p className="text-g-dim text-[10px] truncate">{j.car_model} · {j.description}</p>
-                      </div>
-                      <div className="text-left shrink-0">
-                        <p className="text-g-steel font-black text-sm">{money(j.total)}</p>
-                        <p className="text-green-400 text-[10px] font-bold">+{money(profit)}</p>
-                      </div>
-                      <ChevronLeft size={14} className="text-g-dim shrink-0" />
-                    </Link>
-                  )
-                })}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-g-red animate-pulse" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+                <p className="section-label mb-0">{t.currentJobs} ({open.length})</p>
+              </div>
+              <div className="space-y-2.5">
+                {open.map((j, i) => <JobCard key={j.id} j={j} i={i} />)}
               </div>
             </div>
           )}
 
+          {/* Completed */}
           {completed.length > 0 && (
             <div className="animate-fade-up delay-5">
-              <p className="text-green-400 text-[11px] font-bold tracking-widest mb-3">{t.completed}</p>
-              <div className="space-y-2">
-                {completed.map((j, i) => {
-                  const profit = Number(j.total) - Number(j.parts_cost)
-                  return (
-                    <Link key={j.id} to={`/job/${j.id}`} className={`card flex items-center gap-3 opacity-70 hover:opacity-100 transition-all animate-fade-up delay-${Math.min(i + 5, 6)}`}>
-                      <div className="w-11 h-11 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0"><Car size={20} className="text-green-400" /></div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-g-steel font-bold text-sm truncate">{j.garage_clients?.name} — {j.plate_number}</p>
-                        <p className="text-g-dim text-[10px] truncate">{j.car_model}</p>
-                      </div>
-                      <div className="text-left shrink-0">
-                        <p className="text-g-steel font-black text-sm">{money(j.total)}</p>
-                        <p className="text-green-400 text-[10px] font-bold">+{money(profit)}</p>
-                      </div>
-                      <ChevronLeft size={14} className="text-g-dim shrink-0" />
-                    </Link>
-                  )
-                })}
+              <p className="section-label">{t.completed} ({completed.length})</p>
+              <div className="space-y-2.5">
+                {completed.map((j, i) => <JobCard key={j.id} j={j} i={i} ghost />)}
               </div>
             </div>
           )}
 
           {jobs.length === 0 && (
-            <div className="text-center py-16 animate-fade-in">
-              <p className="text-4xl mb-3">🚗</p>
+            <div className="text-center py-20 animate-fade-in">
+              <p className="text-4xl mb-3 opacity-30">🚗</p>
               <p className="text-g-dim text-sm">{t.noCars}</p>
-              <Link to="/new" className="text-g-red text-sm font-bold mt-2 inline-block">{t.addFirst}</Link>
+              <Link to="/new" className="text-g-red text-sm font-bold mt-3 inline-block">{t.addFirst}</Link>
             </div>
           )}
         </>

@@ -1,32 +1,82 @@
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   * { -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Tajawal', sans-serif; background: #0A0A0A; color: #E8E4E0; }
+  body { font-family: 'Tajawal', sans-serif; background: #070707; color: #F0EDE8; -webkit-font-smoothing: antialiased; }
   input, select, textarea, button { font-family: 'Tajawal', sans-serif; }
   input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
 }
+
 @layer components {
-  .card { @apply bg-g-card border border-g-border/60 rounded-2xl p-4; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
-  .input-g { @apply w-full bg-g-elevated border border-g-border rounded-xl px-4 py-3 text-g-steel text-sm transition-all; }
-  .input-g:focus { @apply border-g-red outline-none; box-shadow: 0 0 0 3px rgba(239,68,68,0.12); }
-  .input-g::placeholder { @apply text-g-dim/50; }
-  .label-g { @apply block text-g-dim text-xs font-bold mb-2; }
-  .btn-red { @apply w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.97]; background: linear-gradient(135deg, #DC2626, #EF4444); color: #fff; }
-  .btn-red:disabled { opacity: 0.5; }
+  .card {
+    @apply rounded-2xl p-4 transition-all duration-300;
+    background: linear-gradient(165deg, #111111 0%, #0D0D0D 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+  .card:hover { border-color: rgba(255,255,255,0.1); }
+
+  .input-g {
+    @apply w-full rounded-xl px-4 py-3 text-sm transition-all duration-200;
+    background: #0A0A0A;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    color: #F0EDE8;
+  }
+  .input-g:focus { border-color: #E53935; outline: none; box-shadow: 0 0 0 3px rgba(229,57,53,0.15), 0 0 20px rgba(229,57,53,0.05); }
+  .input-g::placeholder { color: rgba(255,255,255,0.2); }
+
+  .label-g { @apply block text-xs font-bold mb-2 tracking-wide; color: rgba(255,255,255,0.35); }
+
+  .btn-red {
+    @apply w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200;
+    background: linear-gradient(135deg, #C62828, #E53935);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(229,57,53,0.25);
+  }
+  .btn-red:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(229,57,53,0.15); }
+  .btn-red:disabled { opacity: 0.4; box-shadow: none; }
+
+  /* Plate number badge — looks like a real plate */
+  .plate {
+    font-family: 'JetBrains Mono', monospace;
+    @apply font-bold tracking-wider;
+  }
+
+  /* Money display */
+  .money {
+    font-family: 'JetBrains Mono', monospace;
+    @apply font-bold;
+  }
+
+  .section-label {
+    @apply text-[10px] font-bold tracking-[0.2em] uppercase mb-3;
+    color: rgba(255,255,255,0.25);
+  }
+
+  .glass-stat {
+    @apply rounded-xl p-3 text-center;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
 }
 
-@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-@keyframes scaleIn { from{opacity:0;transform:scale(0.94)} to{opacity:1;transform:scale(1)} }
-.animate-fade-up { animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
-.animate-fade-in { animation: fadeIn 0.4s ease-out both; }
-.animate-scale-in { animation: scaleIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
-.spinner { animation: spin 0.7s linear infinite; }
+@keyframes scaleIn { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
+@keyframes slideIn { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:translateX(0)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+@keyframes glow { 0%,100%{box-shadow:0 0 0 0 rgba(229,57,53,0)} 50%{box-shadow:0 0 30px 4px rgba(229,57,53,0.08)} }
 @keyframes spin { to{transform:rotate(360deg)} }
-.delay-1{animation-delay:.05s}.delay-2{animation-delay:.1s}.delay-3{animation-delay:.15s}.delay-4{animation-delay:.2s}.delay-5{animation-delay:.25s}.delay-6{animation-delay:.3s}
 
-::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:#2A2A2A;border-radius:4px}
+.animate-fade-up { animation: fadeUp 0.55s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-in { animation: fadeIn 0.4s ease-out both; }
+.animate-scale-in { animation: scaleIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-slide-in { animation: slideIn 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-glow { animation: glow 3s ease-in-out infinite; }
+.spinner { animation: spin 0.7s linear infinite; }
+.delay-1{animation-delay:.06s}.delay-2{animation-delay:.12s}.delay-3{animation-delay:.18s}.delay-4{animation-delay:.24s}.delay-5{animation-delay:.3s}.delay-6{animation-delay:.36s}.delay-7{animation-delay:.42s}
+
+::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:4px}
